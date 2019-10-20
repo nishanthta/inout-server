@@ -37,6 +37,40 @@ getDatabase()
             }
         });
 
+        app.get('/get-dev-requests', async(req, res) => {
+            const pc = db.collection('dev-requests');
+            const email = req.query.email;
+            console.log(email);
+            try {
+                let proposals = await pc.find({ email: email }).toArray();
+                res.send(proposals);
+            } catch (err) {
+                console.error(err);
+                res.sendStatus(500);
+            }
+        });
+
+        app.get('submit-dev-request', async(req, res) => {
+            const app = req.body;
+            const pc = db.collection('dev-requests');
+            const email = app.email;
+            console.log(email);
+            const p = await pc.find({ email }).toArray();
+            for (const a of p) {
+                if (a.appId === app.appId) {
+                    res.sendStatus(403);
+                    return;
+                }
+            }
+            try {
+                await pc.insertOne(app);
+                res.sendStatus(200);
+            } catch (err) {
+                console.error(err);
+                res.sendStatus(500);
+            }
+        })
+
         app.post('/submit-ad-proposal', async (req, res) => {
             const proposal = req.body;
             const pc = db.collection('proposals');
