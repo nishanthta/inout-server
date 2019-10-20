@@ -23,6 +23,16 @@ getDatabase()
             }
         });
 
+        app.post('/sign-up-developer', async (req, res) => {
+            const developers = db.collection('developers');
+            try {
+                await developers.insertOne(req.body);
+                res.sendStatus(200);
+            } catch (err) {
+                res.send(err);
+            }
+        });
+
         app.get('/get-ad-proposals', async(req, res) => {
             const pc = db.collection('proposals');
             const appId = req.query.appId;
