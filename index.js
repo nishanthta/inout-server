@@ -25,8 +25,10 @@ getDatabase()
 
         app.get('/get-ad-proposals', async(req, res) => {
             const pc = db.collection('proposals');
+            const appId = req.query.appId;
+            console.log(appId);
             try {
-                let proposals = await pc.find({}).toArray();
+                let proposals = await pc.find({ appId: appId }).toArray();
                 proposals = sorter(proposals, 'offerValue');
                 res.send(proposals);
             } catch (err) {
@@ -38,6 +40,13 @@ getDatabase()
         app.post('/submit-ad-proposal', async (req, res) => {
             const proposal = req.body;
             const pc = db.collection('proposals');
+            const p = await pc.find({ appId: req.body.appId }).toArray();
+            for (const ad of p) {
+                if (ad.email == proposal.email) {
+                    res.sendStatus(403);
+                    return;
+                }
+            }
             try {
                 await pc.insertOne(proposal);
                 res.sendStatus(200);
